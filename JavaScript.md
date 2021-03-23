@@ -1140,4 +1140,209 @@ ul.removeChild(ul.children[0]);
 
 ## 5.6复制节点
 
-ghjghjhgfk
+```
+node.cloneNode()
+```
+
+node.cloneNode()方法返回调用该方法的节点的一个副本。
+
+
+
+注意：
+
+如果括号参数==为空或者为false==，则是==浅拷贝==，即只克隆复制节点本身，不克隆里面的子节点。
+
+如果括号参数为==true==，则是==深度拷贝==，会复制节点本身以及里面所有的子节点。
+
+
+
+
+
+**动态生成表格案例：**
+
+```html
+<html>
+<head>
+    <title>Document</title>
+    <style>
+        .table {
+            margin: 100px auto;
+            /*合并边框*/
+            border-collapse: collapse;
+            background-color: rgb(189, 185, 185);
+        }
+        th,td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+        a{
+            text-decoration: none;
+
+        }
+
+    </style>
+</head>
+<body>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>科目</th>
+                <th>成绩</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <script>
+        var dates=[{
+            name:'小明',
+            subject:'javascript',
+            score:100
+        },{
+            name:'小李',
+            subject:'javascript',
+            score:98
+        },{
+            name:'小张',
+            subject:'javascript',
+            score:95
+        }];
+
+        //1.往tbody里面创建行
+        var tbody=document.querySelector('tbody');
+        for(var i=0;i<dates.length;i++){
+            //2.创建tr行
+            var tr=document.createElement('tr');
+            tbody.appendChild(tr);
+            //3.行里面创建单元格td，单元格的数量取决于每个对象里面的属性个数
+            for(var k in dates[i]){
+                //k每次取值都是dates[i]中的属性名
+                var td=document.createElement('td');
+                tr.appendChild(td);
+                //dates[i]是一个对象，dates[i][k]的值是该对象的属性名为k的属性值
+                td.innerHTML=dates[i][k];
+            }
+            //4.添加删除链接
+            var td=document.createElement('td');
+            td.innerHTML='<a href="javascript:;">删除</a>';
+            tr.appendChild(td);
+        }
+
+        //5.绑定删除操作
+        var del=document.querySelectorAll('a');
+        for(i=0;i<del.length;i++){
+            del[i].onclick=function() {
+                //a的父元素是td,td的父元素是tr,要删的是tr
+                tbody.removeChild(this.parentNode.parentNode);
+            }
+        }
+
+    </script>
+</body>
+</html>
+```
+
+
+
+## 5.7三种动态创建元素区别
+
+- document.write()
+- element.innerHTML
+- document.createElement()
+
+**区别：**
+
+1.document.write是直接将内容写入页面的内容流，但是，如果==页面文档流加载完毕==，再调用这句话，如写在点击事件中，会导致页面重绘，即只显示write创建的元素。
+
+2.innerHTML是将内容写入某个DOM节点，不会导致页面全部重绘。
+
+3.innerHTML创建多个元素==效率更高==（不要拼接字符串，采用==数组形式==拼接），结构稍微复杂。
+
+4.createElement()创建多个元素效率稍低一点，但结构更清晰。
+
+
+
+**innerHTML创建多个元素示例：**
+
+```html
+<html>
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <div class="inner"></div>
+    <script>
+        var inner=document.querySelector('.inner');
+        //1.拼接字符串
+        for(var i=0;i<100;i++){
+            inner.innerHTML+='<a href="#">百度</a>';
+        }
+        //2.数组拼接
+        var arr=[];
+        for(var i=0;i<100;i++){
+            arr.push('<a href="#">百度</a>');
+        }
+        //join()用于把数组中的所有元素放入一个字符串
+        //参数是指定的分隔符，默认是逗号
+        inner.innerHTML=arr.join('');
+    </script>
+</body>
+</html>
+```
+
+
+
+
+
+# 6.事件高级
+
+## 6.1注册事件
+
+### 6.1.1概述
+
+给元素添加事件，称为注册事件或者绑定事件。
+
+注册事件有两种方式：==传统方式==和==方法监听注册方式==
+
+
+
+**传统注册方式**
+
+- 利用on开头的事件，如onclick
+- \<button onclick = "alert(‘hi’)">\</button>
+- btn.onclick = function() {}
+- 同一个元素同一个事件只能设置一个处理函数，最后注册的处理函数将会覆盖前面注册的处理函数
+
+
+
+**方法监听注册方式**
+
+- w3c标准 推荐方式
+- addEventListener()它是一个方法
+- IE9之前不支持此方法，可使用attachEvent()代替
+- 特点：同一个元素同一个事件可以注册多个监听器
+- 按注册顺序依次执行
+
+
+
+### 6.1.2 addEventListener 事件监听方式
+
+```
+eventTarget.addEventListener(type, function, useCapture)
+```
+
+该方法将指定的监听器注册到eventTarget（目标对象）上，当该对象触发指定的事件时，就会执行事件处理函数。
+
+该方法接收三个参数：
+
+- type：事件类型字符串，比如click、mouseover，注意这里不要带on
+- function：事件处理函数，事件发生时，会调用该监听函数
+- useCapture：可选参数，是一个布尔值，默认是false。
+
+
+
+### 6.1.3 attachEvent 事件监听方式
+
